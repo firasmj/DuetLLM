@@ -1,0 +1,21 @@
+server:
+  port: 8080
+
+app:
+  maxRounds: 3
+  similarityThreshold: 0.88
+
+openai:
+  apiKey: ${OPENAI_API_KEY:}
+  model: gpt-4o-mini
+  baseUrl: https://api.openai.com/v1
+
+gemini:
+  apiKey: ${GEMINI_API_KEY:}
+  model: gemini-1.5-pro
+  baseUrl: https://generativelanguage.googleapis.com/v1beta
+
+spring:
+  jackson:
+    serialization:
+      INDENT_OUTPUT: true
