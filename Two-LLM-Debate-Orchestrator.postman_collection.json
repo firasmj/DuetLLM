@@ -1,0 +1,37 @@
+{
+  "info": {
+    "name": "Two-LLM Debate Orchestrator",
+    "_postman_id": "debate-orchestrator-collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Run Debate",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/debate",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "debate"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"prompt\": \"Design a REST API for a todo app. Provide endpoints and validation rules.\", \"rounds\": 2}"
+        }
+      }
+    }
+  ]
+}
