@@ -4,6 +4,7 @@ import com.example.debate.model.ApiModels.LlmChat;
 import com.example.debate.model.ApiModels.LlmMessage;
 import com.example.debate.model.ApiModels.LlmParams;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -18,8 +19,6 @@ public class GeminiClient implements LlmClient {
 
   private final WebClient webClient;
   private final String model;
-  private final String baseUrl;
-  private final String apiKey;
 
   public GeminiClient(
       WebClient.Builder builder,
@@ -27,34 +26,46 @@ public class GeminiClient implements LlmClient {
       @Value("${gemini.apiKey}") String apiKey,
       @Value("${gemini.model}") String model) {
     this.model = model;
-    this.baseUrl = baseUrl;
-    this.apiKey = apiKey;
     this.webClient = builder
-        .baseUrl(baseUrl + "/models/" + model + ":generateContent?key=" + apiKey)
-        .defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .baseUrl(baseUrl) // e.g. https://generativelanguage.googleapis.com/v1beta
+        .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .defaultHeader("X-goog-api-key", apiKey)
         .build();
   }
 
   @Override
   public Mono<LlmMessage> respond(LlmChat chat, LlmParams params) {
-    // Minimal "contents" mapping
-    var contents = chat.messages().stream()
-        .map(m -> Map.of("role", m.role().equals("system") ? "user" : m.role(),
-            "parts", java.util.List.of(Map.of("text", m.content()))))
+    // Map internal messages to Gemini "contents"
+    List<Map<String, Object>> contents = chat.messages().stream()
+        .map(m -> {
+          String role = m.role();
+          // Gemini expects "user" for prompts and "model" for responses
+          if ("assistant".equals(role)) {
+            role = "model";
+          } else {
+            role = "user"; // collapse system/user to user
+          }
+            return Map.of(
+                "role", role,
+                "parts", List.of(Map.of("text", m.content()))
+            );
+        })
         .toList();
-    var payload = Map.of("contents", contents);
+
+    Map<String, Object> payload = Map.of("contents", contents);
 
     return this.webClient.post()
+        .uri("/models/{model}:generateContent", model)
         .body(BodyInserters.fromValue(payload))
         .retrieve()
         .bodyToMono(Map.class)
         .map(resp -> {
           try {
-            var candidates = (java.util.List) resp.get("candidates");
-            var c0 = (java.util.Map) candidates.get(0);
-            var content = (java.util.Map) c0.get("content");
-            var parts = (java.util.List) content.get("parts");
-            var p0 = (java.util.Map) parts.get(0);
+            var candidates = (List<?>) resp.get("candidates");
+            var c0 = (Map<?, ?>) candidates.get(0);
+            var content = (Map<?, ?>) c0.get("content");
+            var parts = (List<?>) content.get("parts");
+            var p0 = (Map<?, ?>) parts.get(0);
             String text = (String) p0.get("text");
             return new LlmMessage("assistant", text);
           } catch (Exception e) {
