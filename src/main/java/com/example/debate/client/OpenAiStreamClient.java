@@ -67,10 +67,10 @@ public class OpenAiStreamClient implements LlmStreamClient {
                 .map(line -> line.trim())
                 // .filter(line -> line.startsWith("data:"))
                 //log lines
-                .doOnNext(line -> System.out.println("before trim: " + line))
+                // .doOnNext(line -> System.out.println("before trim: " + line))
                 // .map(line -> line.substring(6).trim())
                 //log lines
-                .doOnNext(line -> System.out.println("OpenAIStreamClient: " + line))
+                // .doOnNext(line -> System.out.println("OpenAIStreamClient: " + line))
                 .takeUntil(line -> line.equals("[DONE]"))
                 .filter(line -> !line.equals("[DONE]"))
                 .concatMap(json -> {
