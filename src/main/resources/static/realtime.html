@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <button id="go">Start</button>
+  <pre id="out"></pre>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+  <script>
+    const out = document.getElementById('out');
+    function append(s){ out.textContent += s }
+    document.getElementById('go').onclick = async () => {
+      const requestId = crypto.randomUUID();
+      const sock = new SockJS("/ws");
+      const client = Stomp.over(sock);
+      client.debug = () => {};
+      client.connect({}, async () => {
+        client.subscribe(`/topic/stream/${requestId}`, (msg) => {
+          const data = JSON.parse(msg.body);
+          if (data.type === 'token') append(data.token);
+          if (data.type === 'final') append("\nFinal: " + JSON.stringify(data.result));
+          if (data.type === 'done') append("\n[done]\n");
+        });
+        await fetch("/api/debate/stream?requestId=" + requestId, {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({ prompt: "explain a software engineer in 50 words", rounds: 2 })
+        });
+      });
+    };
+  </script>
+</body>
+</html>

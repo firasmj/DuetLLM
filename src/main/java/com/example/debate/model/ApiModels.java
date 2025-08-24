@@ -5,8 +5,11 @@ import java.util.List;
 
 public class ApiModels {
 
-  public record DebateRequest(@NotBlank String prompt, Integer rounds) {}
-  public record AltAnswer(String model, String answer) {}
+  public record DebateRequest(@NotBlank String prompt, Integer rounds) {
+  }
+
+  public record AltAnswer(String model, String answer) {
+  }
 
   public static class DebateResult {
     public String status; // "consensus" | "no_consensus"
@@ -24,7 +27,9 @@ public class ApiModels {
       r.judge_notes = notes;
       return r;
     }
-    public static DebateResult noConsensus(String aModel, String a, String bModel, String b, String synth, int rounds, String notes) {
+
+    public static DebateResult noConsensus(String aModel, String a, String bModel, String b, String synth, int rounds,
+        String notes) {
       DebateResult r = new DebateResult();
       r.status = "no_consensus";
       r.alternatives = java.util.List.of(new AltAnswer(aModel, a), new AltAnswer(bModel, b));
@@ -35,7 +40,16 @@ public class ApiModels {
     }
   }
 
-  public record LlmMessage(String role, String content) {}
-  public record LlmChat(java.util.List<LlmMessage> messages) {}
-  public record LlmParams(int maxTokens, double temperature, String model){}
+  public record LlmMessage(String role, String content) {
+  }
+
+  public record LlmChat(java.util.List<LlmMessage> messages) {
+  }
+
+  public record LlmParams(Integer maxTokens, Double temperature, String model) {
+    public static LlmParams defaults() {
+      return new LlmParams(800, 0.2, null);
+    }
+  }
+
 }
