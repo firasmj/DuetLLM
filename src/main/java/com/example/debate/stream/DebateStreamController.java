@@ -8,6 +8,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/debate")
+@CrossOrigin(origins = "*")
 public class DebateStreamController {
 
     private final StreamingOrchestrator orchestrator;

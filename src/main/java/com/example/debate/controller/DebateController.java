@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/debate")
+@CrossOrigin(origins = "*")
 public class DebateController {
 
   private final OrchestratorService orchestrator;

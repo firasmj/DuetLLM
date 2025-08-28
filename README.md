@@ -2,6 +2,8 @@
 
 A ready-to-run Spring Boot service that orchestrates a short debate between **GPT** and **Gemini**, attempts to reach a **consensus**, and returns the result.
 
+> ⚡ The frontend repository: [Next.js LLM Debate Console](https://github.com/firasmj/LLM-Debate-Client)
+
 ## Quick Start
 
 1. **Set API keys**
@@ -19,6 +21,10 @@ A ready-to-run Spring Boot service that orchestrates a short debate between **GP
    ```bash
    curl -X POST http://localhost:8080/api/debate      -H 'Content-Type: application/json'      -d '{ "prompt": "Write a function in Python that reverses a linked list.", "rounds": 2 }'
    ```
+
+## Related Repositories
+
+- [Next.js LLM Debate Console](https://github.com/firasmj/LLM-Debate-Client)
 
 ## Endpoint
 - `POST /api/debate`
